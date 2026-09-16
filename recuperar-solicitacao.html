@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar senha</title>
+</head>
+<body>
+  <script>
+    window.location.replace("recuperar-senha.html");
+  </script>
+  <main>
+    <h1>Recuperar senha</h1>
+    <p>Informe seu e-mail para receber um código de recuperação.</p>
+    <p id="mensagem" style="display:none"></p>
+    <a id="continuar-recuperacao" href="recuperar-senha.html" hidden>Continuar para redefinir a senha</a>
+    <form id="form-recuperacao" autocomplete="on">
+    <label for="email">E-mail</label>
+    <input type="email" id="email" placeholder="E-mail" autocomplete="email">
+    <button type="button" onclick="solicitarRecuperacao()">Enviar código</button>
+    <div id="campos-redefinicao" hidden>
+      <label for="codigo">Código recebido</label>
+      <input type="text" id="codigo" placeholder="Código de 6 dígitos" inputmode="numeric" maxlength="6">
+      <label for="senha">Nova senha</label>
+      <input type="password" id="senha" placeholder="Mínimo de 8 caracteres" autocomplete="new-password">
+      <label for="confirmar">Confirmar nova senha</label>
+      <input type="password" id="confirmar" placeholder="Repita a nova senha" autocomplete="new-password">
+      <button type="button" onclick="redefinirSenha()">Redefinir senha</button>
+    </div>
+    </form>
+    <a href="cadastro.html">Voltar para o login</a>
+  </main>
+  <script src="app.js?v=41"></script>
+</body>
+</html>

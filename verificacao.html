@@ -1,0 +1,65 @@
+﻿﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar E-mail</title>
+</head>
+
+<body>
+    <header>
+        <div id="titulo">
+            <h1>Confirme seu E-mail</h1>
+        </div>
+    </header>
+
+    <main>
+        <div id="titulo-verificacao">
+            <h2>Digite o código</h2>
+        </div>
+
+        <p id="mensagem" style="display:none"></p>
+
+        <p>Enviamos um código de 6 dígitos para o seu e-mail.
+            Ele expira em 10 minutos.</p>
+
+        <div id="campo-email">
+            <h3>E-mail</h3>
+            <input type="email" id="email" placeholder="E-mail">
+        </div>
+
+        <div id="campo-codigo">
+            <h3>Código</h3>
+            <input type="text" id="codigo" placeholder="000" maxlength="6" inputmode="numeric">
+        </div>
+
+        <div id="Verificar">
+            <button onclick="verificar()">
+                <h3>Verificar</h3>
+            </button>
+        </div>
+
+        <div id="reenviar">
+            <button onclick="reenviar()">
+                <h3>Reenviar código</h3>
+            </button>
+        </div>
+
+        <div id="voltar">
+            <h3><a href="cadastro.html">Voltar ao login</a></h3>
+        </div>
+    </main>
+
+    <script src="app.js?v=42"></script>
+    <script>
+        const emailDaUrl = new URLSearchParams(window.location.search).get("email");
+        const emailSalvo = emailDaUrl || sessionStorage.getItem("emailPendente");
+        if (emailSalvo) {
+            document.getElementById("email").value = emailSalvo;
+            sessionStorage.setItem("emailPendente", emailSalvo);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "sistema-login",
+  "version": "1.0.0",
+  "description": "Sistema de login com banco de dados, senha criptografada e verificacao por e-mail",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.14",
+    "dotenv": "^16.4.5",
+    "cookie-parser": "^1.4.6",
+    "express-rate-limit": "^7.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

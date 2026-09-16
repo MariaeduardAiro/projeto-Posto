@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Usuário</title>
+</head>
+
+<body>
+    <header>
+        <div id="titulo">
+            <h1>Você está logado</h1>
+        </div>
+    </header>
+
+    <main>
+        <p id="mensagem" style="display:none"></p>
+        <h2 id="saudacao">Bem-vindo(a)!</h2>
+        <p>Venha conheçer o projeto!</p>
+
+        <button onclick="logout()">
+            <h3>Sair</h3>
+        </button>
+    </main>
+
+    <script>
+        // Mostra o nome/e-mail do usuário logado
+        const usuario = JSON.parse(sessionStorage.getItem("usuarioLogado") || "null");
+        document.getElementById("saudacao").textContent = usuario
+            ? `Bem-vindo(a), ${usuario.nome || usuario.email}!`
+            : "Bem-vindo(a)!";
+
+        async function logout() {
+            await fetch("/api/auth/logout", { method: "POST" });
+            sessionStorage.removeItem("usuarioLogado");
+            window.location.href = "cadastro.html";
+        }
+    </script>
+</body>
+
+</html>

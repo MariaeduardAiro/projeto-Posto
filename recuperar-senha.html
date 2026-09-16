@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Definir nova senha</title>
+</head>
+<body>
+  <main>
+    <h1>Definir nova senha</h1>
+    <p>Informe seu e-mail para receber o código de recuperação.</p>
+    <p id="mensagem" style="display:none"></p>
+    <form id="form-nova-senha" autocomplete="on">
+    <label for="email">E-mail</label>
+    <input type="email" id="email" 
+    placeholder="E-mail" autocomplete="email">
+    <button type="button" onclick="solicitarRecuperacao()">Enviar código</button>
+    <div id="campos-redefinicao">
+    <label for="codigo">Código</label>
+    <input type="text" id="codigo"
+     placeholder="Código de 6 dígitos" inputmode="numeric" maxlength="6">
+    <label for="senha">Nova senha</label>
+    <input type="password" id="senha" placeholder="Mínimo de 8 caracteres" 
+    autocomplete="new-password">
+    <label for="confirmar">Confirmar nova senha</label>
+    <input type="password" id="confirmar" placeholder="Repita a nova senha" 
+    autocomplete="new-password">
+    <button type="button" onclick="redefinirSenha()">Redefinir senha</button>
+    </div>
+    </form>
+    <a href="cadastro.html">Voltar para o login</a>
+  </main>
+  <script>
+    const emailSalvo = sessionStorage.getItem("emailRecuperacao");
+    if (emailSalvo) document.getElementById("email").value = emailSalvo;
+    const mensagemRecuperacao = sessionStorage.getItem("mensagemRecuperacao");
+    if (mensagemRecuperacao) {
+      const mensagem = document.getElementById("mensagem");
+      mensagem.textContent = mensagemRecuperacao;
+      mensagem.style.color = "#16a34a";
+      mensagem.style.display = "block";
+      sessionStorage.removeItem("mensagemRecuperacao");
+    }
+  </script>
+  <script src="app.js?v=41"></script>
+</body>
+</html>

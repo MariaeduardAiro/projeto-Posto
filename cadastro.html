@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cadastro</title>
+</head>
+<body>
+<header> 
+    <div id="titulo">
+        <h1>Cadastro</h1>
+    </div>
+</header>
+
+<main>
+<div><img src="" alt=""></div>
+
+    <div id="titulo-entrar">
+        <h2>Entrar</h2>
+    </div>
+
+    <p id="mensagem" style="display:none"></p>
+
+<form id="form-login" autocomplete="on">
+<div id="campo-email">
+    <h3>E-mail</h3>
+    <input type="email" id="email" form="form-login" placeholder="E-mail" autocomplete="username">
+</div>
+
+<div id="campo-senha">
+    <h3>Senha</h3>
+    <input type="password" id="senha" form="form-login" placeholder="Senha" autocomplete="current-password">
+</div>
+
+<div id="Entrar">
+    <button type="button" form="form-login" onclick="entrar()">
+        <h3> Entrar</h3>
+    </button>
+</div>
+</form>
+
+<div id="cadastro">
+    <h3>Não tem uma conta? <a href="cadastro2.html">Cadastre-se</a></h3>
+    <h3><a href="recuperar-senha.html">Esqueci minha senha</a></h3>
+</div>
+</main>
+
+    <script src="app.js?v=42"></script>
+</body>
+</html>
