@@ -39,12 +39,18 @@ function mostrarComLink(msg, tipo, texto, destino) {
   el.appendChild(link);
 }
 
-// A API sempre roda na porta 3000. Se a pagina vier do Live Server
-// (5500, 5501, etc.) ou de outro servidor, direcionamos para ela.
-const API_BASE_URL =
-  window.location.port === "3000"
-    ? ""
-    : "http://127.0.0.1:3000";
+// Em producao (dominio real) o proprio Express serve o HTML e a API no
+// mesmo endereco, entao usamos caminho relativo ("/api/...").
+// Durante o desenvolvimento, se a pagina for aberta pelo Live Server
+// (porta 5500+) apontamos para a API local na porta 3000. Em qualquer
+// outra porta (inclusive 80/443 da hospedagem) usamos relativo.
+const API_BASE_URL = (() => {
+  const porta = window.location.port;
+  // Live Server do VS Code (5500, 5501, ...) -> API local
+  if (porta === "5500" || porta === "5501") return "http://127.0.0.1:3000";
+  // Servido pelo proprio Express ou por uma hospedagem -> relativo
+  return "";
+})();
 
 function apiUrl(caminho) {
   return `${API_BASE_URL}${caminho}`;

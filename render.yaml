@@ -1,0 +1,52 @@
+# ============================================================
+# render.yaml - Configuracao de deploy no Render (https://render.com)
+# ------------------------------------------------------------
+# Este arquivo diz ao Render COMO publicar o sistema.
+# O Render le este arquivo automaticamente quando voce conecta o
+# repositorio do GitHub.
+# ============================================================
+
+services:
+  - type: web
+    name: sistema-login
+    runtime: node
+    # A pasta do servidor (onde estao package.json e server.js)
+    rootDir: server
+    # Plano gratuito do Render
+    plan: free
+    # Node 22+ e obrigatorio porque o banco usa "node:sqlite"
+    # (o modulo SQLite nativo do Node, que so existe a partir do Node 22)
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # O Render define o PORT automaticamente; nao precisa configurar.
+      - key: NODE_VERSION
+        value: "22"
+      # ATENCAO: as variaveis abaixo sao SEGREDOS.
+      # O Render vai pedir para voce preencher cada uma no painel
+      # (Environment > Environment Variables). Nao coloque valores aqui!
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES
+        sync: false
+      - key: MAIL_MODE
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: CODE_EXPIRA_MINUTOS
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+    disk:
+      name: dados-banco
+      mountPath: /var/dados
+      sizeGB: 1

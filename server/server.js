@@ -20,10 +20,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); 
 
 
+// Origens permitidas para CORS (separadas por virgula no .env).
+// Em producao, coloque o dominio real. Ex.: CORS_ORIGINS=https://meusite.com
+const ORIGENS_PERMITIDAS = (process.env.CORS_ORIGINS ||
+  "http://localhost:5500,http://127.0.0.1:5500")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use((req, res, next) => {
   const origem = req.headers.origin;
-  if (origem === "http://localhost:5500" || origem === "http://127.0.0.1:5500") {
+  if (origem && ORIGENS_PERMITIDAS.includes(origem)) {
     res.header("Access-Control-Allow-Origin", origem);
+    res.header("Vary", "Origin");
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Headers", "Content-Type");
     res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");

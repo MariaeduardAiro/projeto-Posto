@@ -3,9 +3,23 @@
 
 const { DatabaseSync } = require("node:sqlite");
 const path = require("path");
+const fs = require("fs");
+
+// Pasta onde o arquivo do banco fica guardado.
+// - Local (seu PC): a propria pasta do servidor.
+// - Producao: defina DB_DIR no .env apontando para o disco persistente,
+//   por exemplo DB_DIR=/var/dados (senao o banco e apagado a cada deploy).
+const PASTA_BANCO = process.env.DB_DIR
+  ? process.env.DB_DIR
+  : __dirname;
+
+// Garante que a pasta existe antes de abrir o banco
+if (!fs.existsSync(PASTA_BANCO)) {
+  fs.mkdirSync(PASTA_BANCO, { recursive: true });
+}
 
 // Abre ou cria o arquivo do banco
-const db = new DatabaseSync(path.join(__dirname, "sistema.db"));
+const db = new DatabaseSync(path.join(PASTA_BANCO, "sistema.db"));
 
 // Boas praticas do SQLite
 db.exec("PRAGMA journal_mode = WAL;"); // mais rapido e seguro
