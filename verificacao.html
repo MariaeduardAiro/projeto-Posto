@@ -1,4 +1,4 @@
-锘匡豢<!DOCTYPE html>
+?<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -16,12 +16,12 @@
 
     <main>
         <div id="titulo-verificacao">
-            <h2>Digite o c贸digo</h2>
+            <h2>Digite o c骴igo</h2>
         </div>
 
         <p id="mensagem" style="display:none"></p>
 
-        <p>Enviamos um c贸digo de 6 d铆gitos para o seu e-mail.
+        <p>Enviamos um c骴igo de 6 d韌itos para o seu e-mail.
             Ele expira em 10 minutos.</p>
 
         <div id="campo-email">
@@ -30,7 +30,7 @@
         </div>
 
         <div id="campo-codigo">
-            <h3>C贸digo</h3>
+            <h3>C骴igo</h3>
             <input type="text" id="codigo" placeholder="000" maxlength="6" inputmode="numeric">
         </div>
 
@@ -42,7 +42,7 @@
 
         <div id="reenviar">
             <button onclick="reenviar()">
-                <h3>Reenviar c贸digo</h3>
+                <h3>Reenviar c骴igo</h3>
             </button>
         </div>
 
@@ -51,7 +51,7 @@
         </div>
     </main>
 
-    <script src="app.js?v=42"></script>
+    <script src="app.js?v=44"></script>
     <script>
         const emailDaUrl = new URLSearchParams(window.location.search).get("email");
         const emailSalvo = emailDaUrl || sessionStorage.getItem("emailPendente");

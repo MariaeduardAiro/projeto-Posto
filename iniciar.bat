@@ -33,17 +33,16 @@ echo   (Para parar, feche esta janela)
 echo  ============================================
 echo.
 
-"%NODE_EXE%" server.js
-REM ----- 
-echo.
-echo  ============================================
-echo   O servidor foi encerrado ou deu erro acima.
-echo.
-echo   Se aparecer "EADDRINUSE" ou "address already",
-echo   significa que JA existe um servidor rodando.
-echo   Nesse caso, apenas abra http://localhost:3000
+:reiniciar
+"%NODE_EXE%" server.js >> "%~dp0server\server-out.log" 2>> "%~dp0server\server-err.log"
+set EXIT_CODE=%ERRORLEVEL%
 
-echo   e NAO precisa abrir outra janela.
+echo.
+echo  ============================================
+echo   O servidor foi encerrado (codigo %EXIT_CODE%).
+echo   Nova tentativa em 3 segundos.
+echo   Para encerrar de vez, feche esta janela.
 echo  ============================================
 echo.
-pause
+timeout /t 3 /nobreak >nul
+goto reiniciar

@@ -3,20 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página inicial</title>
-</head>
-<body>
-    <header>
-        <class id="Pagina Inicial"><h2>Pagina Inicial</h2>
-        </class>
+        <title>Página inicial</title>
+        <link rel="stylesheet" href="pagina-vazia.css">
+    </head>
+    <body>
 
-    </header>
+        <header>
+            <button id="menu-btn">☰</button>
 
-    <main>
- <div id="resultado-imagem" class="resultado-imagem">Sobre as vacinas:</div>
+            <nav id="menu">
+                <a href="#">Perto de você</a>
+                <a href="#">Sobre o projeto</a>
+                <a href="#">Credenciais</a>
+            </nav>
 
- <div id="resultado-pergunta" class="resultado-pergunta"></div>
-<textarea type="text" id="Pergunta" placeholder="Digite sua Pergunta"></textarea>
-    </main>
-</body>
-</html>
+            <h2>Pagina Inicial</h2>
+        </header>
+
+        <main>
+
+            <section id="conteudo">
+                <h3>Analise sua carteira de vacinação</h3>
+                <p>Tire uma foto nítida da carteira e envie. A IA vai ler a imagem e
+                   apontar o que está faltando, atrasado e o que você precisa saber.</p>
+
+                <div id="foto-imagem" class="foto-imagem">Foto da carteirinha:</div>
+                <input type="file" id="Imagem" accept="image/*">
+                <img id="preview" width="300" alt="Pré-visualização da carteira">
+
+                <div id="acoes-ia">
+                    <button id="botao-analisar" type="button" onclick="analisarCarteira()">
+                        Analisar com IA
+                    </button>
+                    <button id="botao-excluir-carteira" type="button" hidden>
+                        Excluir imagem e analise
+                    </button>
+                </div>
+
+                <p id="status-ia" style="display:none"></p>
+                <div id="resultado" class="resultado"></div>
+            </section>
+
+            <section id="conteudo2">
+                <div id="resultado-pergunta" class="resultado-pergunta"></div>
+                <textarea id="Pergunta" placeholder="Digite sua Pergunta (opcional)"></textarea>
+                <div id="acoes-pergunta">
+                    <button id="botao-perguntar" type="button">Perguntar a IA</button>
+                    <button id="botao-limpar-perguntas" type="button" hidden>Limpar perguntas</button>
+                </div>
+            </section>
+
+        </main>
+
+        <script>
+            // Menu suspenso
+            const menuBtn = document.getElementById("menu-btn");
+            const menu = document.getElementById("menu");
+            if (menuBtn && menu) {
+                menuBtn.addEventListener("click", () => menu.classList.toggle("ativado"));
+            }
+
+            // Pré-visualização da imagem escolhida
+            const input = document.getElementById("Imagem");
+            const preview = document.getElementById("preview");
+            if (input && preview) {
+                input.addEventListener("change", function () {
+                    const arquivo = input.files[0];
+                    if (arquivo) preview.src = URL.createObjectURL(arquivo);
+                });
+            }
+        </script>
+        <script src="app.js?v=47"></script>
+    </body>
+    </html>

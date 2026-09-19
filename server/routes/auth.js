@@ -343,10 +343,21 @@ router.post("/login", loginLimiter, (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES || "7d" },
     );
 
+    // Portas diferentes no mesmo hostname (localhost -> localhost ou
+    // 127.0.0.1 -> 127.0.0.1) ainda sao "same-site". Assim o cookie pode
+    // permanecer Lax e funcionar no HTTP local. SameSite=None + Secure fica
+    // reservado para frontend e API em hosts realmente diferentes.
+    const origem = req.headers.origin || "";
+    let hostDaOrigem = "";
+    try {
+      hostDaOrigem = new URL(origem).hostname;
+    } catch {}
+    const hostsDiferentes = Boolean(hostDaOrigem && hostDaOrigem !== req.hostname);
+
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // mude para true quando usar HTTPS
+      sameSite: hostsDiferentes ? "none" : "lax",
+      secure: hostsDiferentes,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

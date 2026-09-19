@@ -1,0 +1,8 @@
+#menu {
+    display: none;
+    flex-direction: column;
+}
+
+#menu.ativado {
+    display: flex;
+}

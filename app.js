@@ -41,13 +41,16 @@ function mostrarComLink(msg, tipo, texto, destino) {
 
 // Em producao (dominio real) o proprio Express serve o HTML e a API no
 // mesmo endereco, entao usamos caminho relativo ("/api/...").
-// Durante o desenvolvimento, se a pagina for aberta pelo Live Server
-// (porta 5500+) apontamos para a API local na porta 3000. Em qualquer
-// outra porta (inclusive 80/443 da hospedagem) usamos relativo.
+// Durante o desenvolvimento, se a pagina for aberta por um servidor local
+// diferente da API (Live Server ou similar), apontamos para a API na porta
+// 3000. Mantemos o mesmo hostname (localhost ou 127.0.0.1) para que o cookie
+// de sessao acompanhe as chamadas da IA.
 const API_BASE_URL = (() => {
   const porta = window.location.port;
-  // Live Server do VS Code (5500, 5501, ...) -> API local
-  if (porta === "5500" || porta === "5501") return "http://127.0.0.1:3000";
+  const hostLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  if (hostLocal && porta && porta !== "3000") {
+    return `http://${window.location.hostname}:3000`;
+  }
   // Servido pelo proprio Express ou por uma hospedagem -> relativo
   return "";
 })();
@@ -90,6 +93,7 @@ async function cadastrar() {
     const limite = setTimeout(() => controlador.abort(), 30000);
     const resp = await fetch(apiUrl("/api/auth/cadastro"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados),
       signal: controlador.signal,
@@ -140,6 +144,7 @@ async function verificarCadastro() {
   try {
     const resp = await fetch(apiUrl("/api/auth/verificar"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, codigo }),
     });
@@ -189,6 +194,7 @@ async function verificar() {
   try {
     const resp = await fetch(apiUrl("/api/auth/verificar"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, codigo }),
     });
@@ -217,6 +223,7 @@ async function reenviar() {
   try {
     const resp = await fetch(apiUrl("/api/auth/reenviar"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
@@ -242,6 +249,7 @@ async function entrar() {
   try {
     const resp = await fetch(apiUrl("/api/auth/login"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados),
     });
@@ -274,6 +282,7 @@ async function solicitarRecuperacao() {
   try {
     const resp = await fetch(apiUrl("/api/auth/solicitar-recuperacao"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
@@ -307,6 +316,7 @@ async function redefinirSenha() {
   try {
     const resp = await fetch(apiUrl("/api/auth/redefinir-senha"), {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados),
     });
@@ -320,6 +330,250 @@ async function redefinirSenha() {
   }
 }
 
+// ============================================================
+// ANALISE DA CARTEIRA DE VACINACAO POR IA
+// ------------------------------------------------------------
+// 1) pega a imagem escolhida no <input type="file">
+// 2) redimensiona no navegador (evita enviar arquivo gigante)
+// 3) converte para base64 e manda para /api/ia/analisar
+// 4) mostra a resposta da IA (com "/" quebra de linha)
+// ============================================================
+async function analisarCarteira() {
+  const resultado = document.getElementById("resultado");
+  const status = document.getElementById("status-ia");
+  const botao = document.getElementById("botao-analisar");
+  const arquivo = document.getElementById("Imagem")?.files?.[0];
+  const pergunta = document.getElementById("Pergunta")?.value.trim() || "";
+
+  const definirStatus = (texto, cor) => {
+    if (!status) return;
+    status.textContent = texto;
+    status.style.color = cor || "#333";
+    status.style.display = "block";
+  };
+
+  if (!arquivo) {
+    definirStatus("Escolha a foto da carteira primeiro.", "#dc2626");
+    return;
+  }
+
+  if (botao) botao.disabled = true;
+  if (resultado) resultado.textContent = "";
+  definirStatus("Enviando e analisando com IA... isso pode levar alguns segundos.", "#333");
+
+  try {
+    const imagemBase64 = await prepararImagem(arquivo);
+
+    const resp = await fetch(apiUrl("/api/ia/analisar"), {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imagem: imagemBase64, pergunta }),
+    });
+
+    const json = await resp.json().catch(() => ({}));
+
+    if (!resp.ok) {
+      definirStatus(json.erro || "Não foi possível analisar a imagem.", "#dc2626");
+      return;
+    }
+
+    definirStatus("Análise concluída!", "#16a34a");
+    if (resultado) {
+      // textContent preserva quebras de linha do texto gerado pela IA
+      resultado.textContent = json.resposta || "(a IA não retornou resposta)";
+    }
+    mostrarCarteiraSalva({ imagem: imagemBase64, resposta: json.resposta, pergunta });
+  } catch (e) {
+    console.error(e);
+    definirStatus("Erro ao analisar: " + e.message, "#dc2626");
+  } finally {
+    if (botao) botao.disabled = false;
+  }
+}
+
+// Le o arquivo e devolve um data URL em base64, redimensionando
+// a imagem para no maximo 1600px no maior lado (economiza banda).
+function prepararImagem(arquivo) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+    leitor.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Arquivo não é uma imagem válida."));
+      img.onload = () => {
+        const MAX = 1600;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const escala = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * escala);
+          height = Math.round(height * escala);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        // JPEG com qualidade 0.85 (bom tamanho x legibilidade)
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+let conversaAtual = [];
+
+function mostrarCarteiraSalva(carteira) {
+  const preview = document.getElementById("preview");
+  const resultado = document.getElementById("resultado");
+  const pergunta = document.getElementById("Pergunta");
+  const excluir = document.getElementById("botao-excluir-carteira");
+  if (preview && carteira.imagem) preview.src = carteira.imagem;
+  if (resultado) resultado.textContent = carteira.resposta || "";
+  if (pergunta && carteira.pergunta) pergunta.value = carteira.pergunta;
+  if (excluir) excluir.hidden = false;
+  // Perguntas sao apenas da sessao atual; nunca reaparecem ao atualizar.
+  renderizarPerguntas(conversaAtual);
+}
+
+function renderizarPerguntas(perguntas) {
+  const resultado = document.getElementById("resultado-pergunta");
+  const limpar = document.getElementById("botao-limpar-perguntas");
+  if (!resultado) return;
+  resultado.replaceChildren();
+  perguntas.forEach((item) => {
+    const pergunta = document.createElement("p");
+    pergunta.textContent = `Voce: ${item.pergunta}`;
+    const resposta = document.createElement("p");
+    resposta.textContent = `IA: ${item.resposta}`;
+    resultado.append(pergunta, resposta);
+  });
+  if (limpar) limpar.hidden = perguntas.length === 0;
+}
+
+async function perguntarSobreCarteira() {
+  const campo = document.getElementById("Pergunta");
+  const botao = document.getElementById("botao-perguntar");
+  const status = document.getElementById("status-ia");
+  const pergunta = campo?.value.trim() || "";
+  if (!pergunta) {
+    if (status) {
+      status.textContent = "Digite uma pergunta para a IA.";
+      status.style.display = "block";
+    }
+    return;
+  }
+  if (botao) botao.disabled = true;
+  try {
+    const resp = await fetch(apiUrl("/api/ia/perguntar"), {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pergunta, historico: conversaAtual.slice(-8) }),
+    });
+    const json = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(json.erro || "Nao foi possivel responder agora.");
+
+    conversaAtual.push(json.mensagem);
+    renderizarPerguntas(conversaAtual);
+    if (campo) campo.value = "";
+    const limpar = document.getElementById("botao-limpar-perguntas");
+    if (limpar) limpar.hidden = false;
+  } catch (erro) {
+    if (status) {
+      status.textContent = erro.message;
+      status.style.color = "#dc2626";
+      status.style.display = "block";
+    }
+  } finally {
+    if (botao) botao.disabled = false;
+  }
+}
+
+async function limparPerguntas() {
+  const status = document.getElementById("status-ia");
+  // Limpa imediatamente a conversa visivel, mesmo se uma limpeza de versoes
+  // antigas no servidor falhar. A foto e a analise principal nao sao tocadas.
+  conversaAtual = [];
+  renderizarPerguntas([]);
+  const campo = document.getElementById("Pergunta");
+  if (campo) campo.value = "";
+  try {
+    const resp = await fetch(apiUrl("/api/ia/perguntas"), {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const json = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(json.erro || "Nao foi possivel limpar as perguntas.");
+    if (status) {
+      status.textContent = "Perguntas removidas. A imagem e a analise continuam salvas.";
+      status.style.color = "#16a34a";
+      status.style.display = "block";
+    }
+  } catch (erro) {
+    if (status) {
+      status.textContent = erro.message;
+      status.style.color = "#dc2626";
+      status.style.display = "block";
+    }
+  }
+}
+
+async function carregarCarteiraSalva() {
+  const status = document.getElementById("status-ia");
+  try {
+    const resp = await fetch(apiUrl("/api/ia/carteira"), { credentials: "include" });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    if (!json.carteira) return;
+    mostrarCarteiraSalva(json.carteira);
+    if (status) {
+      status.textContent = "Sua imagem e analise salvas foram carregadas.";
+      status.style.color = "#16a34a";
+      status.style.display = "block";
+    }
+  } catch (erro) {
+    console.warn("Nao foi possivel carregar a carteira salva.", erro);
+  }
+}
+
+async function excluirCarteiraSalva() {
+  if (!window.confirm("Excluir a imagem e a analise salva? Esta acao nao pode ser desfeita.")) return;
+
+  const status = document.getElementById("status-ia");
+  const excluir = document.getElementById("botao-excluir-carteira");
+  try {
+    const resp = await fetch(apiUrl("/api/ia/carteira"), {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const json = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(json.erro || "Nao foi possivel excluir.");
+
+    const preview = document.getElementById("preview");
+    const resultado = document.getElementById("resultado");
+    const pergunta = document.getElementById("Pergunta");
+    const arquivo = document.getElementById("Imagem");
+    if (preview) preview.removeAttribute("src");
+    if (resultado) resultado.textContent = "";
+    if (pergunta) pergunta.value = "";
+    if (arquivo) arquivo.value = "";
+    if (excluir) excluir.hidden = true;
+    if (status) {
+      status.textContent = "Imagem e analise excluidas.";
+      status.style.color = "#16a34a";
+      status.style.display = "block";
+    }
+  } catch (erro) {
+    if (status) {
+      status.textContent = erro.message;
+      status.style.color = "#dc2626";
+      status.style.display = "block";
+    }
+  }
+}
+
 Object.assign(window, {
   cadastrar,
   verificar,
@@ -327,6 +581,10 @@ Object.assign(window, {
   entrar,
   solicitarRecuperacao,
   redefinirSenha,
+  analisarCarteira,
+  excluirCarteiraSalva,
+  perguntarSobreCarteira,
+  limparPerguntas,
 });
 
 /* ============================================================
@@ -360,4 +618,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+
+  const excluirCarteira = document.getElementById("botao-excluir-carteira");
+  if (excluirCarteira) excluirCarteira.addEventListener("click", excluirCarteiraSalva);
+  const perguntar = document.getElementById("botao-perguntar");
+  if (perguntar) perguntar.addEventListener("click", perguntarSobreCarteira);
+  const limparPerguntasBtn = document.getElementById("botao-limpar-perguntas");
+  if (limparPerguntasBtn) limparPerguntasBtn.addEventListener("click", limparPerguntas);
+  if (document.getElementById("Imagem")) carregarCarteiraSalva();
 });

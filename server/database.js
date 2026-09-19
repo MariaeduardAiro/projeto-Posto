@@ -68,6 +68,34 @@ db.exec(`
   );
 `);
 
+// Uma carteira e sua ultima analise por usuario. A imagem fica no proprio
+// banco e e removida em cascata caso a conta seja removida.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS carteiras_salvas (
+    usuario_id    INTEGER PRIMARY KEY,
+    imagem        BLOB NOT NULL,
+    mime          TEXT NOT NULL,
+    resposta      TEXT NOT NULL,
+    pergunta      TEXT,
+    atualizado_em TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  );
+`);
+
+// Perguntas adicionais sobre a carteira salva. Podem ser limpas sem apagar
+// a imagem nem a primeira analise.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS perguntas_ia (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INTEGER NOT NULL,
+    pergunta   TEXT NOT NULL,
+    resposta   TEXT NOT NULL,
+    criado_em  TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_perguntas_ia_usuario ON perguntas_ia(usuario_id, id);`);
+
 // Indices para deixar as buscas rapidas
 db.exec(`CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);`);
 db.exec(
