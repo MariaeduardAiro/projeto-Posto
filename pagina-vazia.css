@@ -9,9 +9,8 @@
 
 .logo{
 display: inline-block;
-width: 55px;
+width: 60px;
 height: auto;
-border-radius: 20px;
 margin-left: 5%;
  animation: fadeon 1.6s ease-in-out infinite ;
  cursor: pointer;
@@ -28,7 +27,7 @@ margin-left: 5%;
 }
 
 header {
-    background-color:#1c4faf ;
+    background-color:#1c4faf7b ;
     display: flex;
     width: auto;
     height: auto;
