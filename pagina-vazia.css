@@ -6,3 +6,186 @@
 #menu.ativado {
     display: flex;
 }
+
+.logo{
+display: inline-block;
+width: 55px;
+height: auto;
+border-radius: 20px;
+margin-left: 5%;
+ animation: fadeon 1.6s ease-in-out infinite ;
+ cursor: pointer;
+}
+
+@keyframes fadeon {
+      0%, 100%{
+        transform: translateY(0);
+    }
+    50% {
+    
+        transform:translateY(-6px);
+    }
+}
+
+header {
+    background-color:#1c4faf ;
+    display: flex;
+    width: auto;
+    height: auto;
+    border-radius:  20px; ;
+    margin-bottom: 30px;
+}
+
+.logoname {
+    display: inline-block;
+    overflow: hidden;
+width: 0;
+max-width: max-content;
+margin-left: 2%;
+color: aliceblue;
+border-right: 0.15em;
+white-space: nowrap;
+letter-spacing: 0.15em;
+animation: digitar 1.0s steps(13,end) forwards,
+piscar-cursor 0.75s step-end infinite;
+}
+
+@keyframes digitar {
+    from {width: 0;}
+    to {width: 15ch;}
+}
+
+@keyframes piscar-cursor {
+
+from,to {border-color: transparent;};
+50% { border-color: #eba027;}
+}
+#Pertodevocê {
+    position: absolute;
+    margin-left: 85%;
+    width: 50px;
+    height: 50px;
+    background-color: #fff353;
+    border-radius: 50%;
+    box-shadow: 0 6px 10px #01343f;
+    transition: all 0.6s ease;
+    border:none;
+    animation: fadein 0.8s ease forwards ;
+     cursor: pointer;
+
+}
+@keyframes fadein {
+    from{
+        scale: 800px;
+        transform: translatex(40px);
+    }
+    to {
+    
+        transform: translatex(0);
+    }
+
+}
+
+
+#Pertodevocê:hover {
+    margin-left: 83%;
+    scale: 110%;
+    transition: 0.2s;
+     transition: all 0.6s ease;
+}
+
+#Pertodevocê:active {
+    scale: 60%;
+    background-color: #dba13c;
+}
+
+#menu-btn {
+    position: absolute;
+    margin-left: 92%;
+    margin-top: 1%;
+    width: auto;
+    height: auto;
+   background-color: rgba(0, 0, 0, 0);
+   border: none;
+   scale: 250%;
+   transition: all 0.2s ease-in-out;
+    animation: fadein 0.8s ease ;
+     cursor: pointer;
+     
+}
+
+#menu-btn:hover {
+scale: 200%;
+}
+#menu-btn:active {
+    transform: scale(0.20);
+    margin-top: 1%;
+}
+
+#campanhas{
+    position: absolute;
+    background-color: #01343f00;
+    border: none;
+    color: #ffeb6b;
+    margin-left: 72%;
+    margin-top: 1.3%;
+    transition: all 0.2s ease;
+    scale: 140%;
+    text-shadow:  0 6px 5px #000000 ;
+    animation: fadein 0.8s ease forwards ;
+     cursor: pointer;
+
+}
+
+#campanhas:hover {
+    scale: 162%;
+    margin-top: 0.6%;
+}
+
+#campanhas:active {
+    scale: 156%;
+}
+
+#menu {
+    position: fixed;
+    top: 65px;
+    right: -290px;
+    width: 250px;
+    height: calc(100vh - 70px);
+    background-color: #eba027;
+    box-shadow: -5 0 15px rgba(0, 0, 0, 0.1);
+    padding-top: 20px;
+   display: flex;
+   flex-direction: column;
+   transition: rigth 0.3 ease;
+   z-index: 998;
+    transition: all 0.6s ease;
+
+    
+}
+
+#menu a {
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #000000;
+    box-shadow: 0 10px 10px #00000024;
+    font-size: 18px;
+    border-bottom: 1px solid;
+
+}
+
+#menu a:hover {
+    padding: 20px 25px;
+    background-color: #d28509;
+    transition: all 0.3s ease;
+}
+
+#menu.ativado {
+    right:0 ;
+}
+#preview {
+    display: flex;
+    width: 20%;
+
+    }
+

@@ -8,19 +8,25 @@
     </head>
     <body>
 
-        <header>
+        <header class="cabecalho">
+         <img src="assets/C.png" alt="logo" class="logo">
+        
+            <h3 class="logoname">Card & Cina</h3>
+            <button id="campanhas">Campanhas</button>
+               <button id="Pertodevocê">📍</button>
             <button id="menu-btn">☰</button>
-
-            <nav id="menu">
-                <a href="#">Perto de você</a>
-                <a href="#">Sobre o projeto</a>
-                <a href="#">Credenciais</a>
-            </nav>
-
-            <h2>Pagina Inicial</h2>
+         
         </header>
 
+   <nav id="menu">
+                <a href="#">Escola</a>
+                <a href="#">Sobre o projeto</a>
+                <a href="#">Credenciais</a>
+                <a href="#">Perfil</a>
+            </nav>
+
         <main>
+            <h2>Pagina Inicial</h2>
 
             <section id="conteudo">
                 <h3>Analise sua carteira de vacinação</h3>
@@ -29,7 +35,7 @@
 
                 <div id="foto-imagem" class="foto-imagem">Foto da carteirinha:</div>
                 <input type="file" id="Imagem" accept="image/*">
-                <img id="preview" width="300" alt="Pré-visualização da carteira">
+                <img id="preview" alt="Pré-visualização da carteira">
 
                 <div id="acoes-ia">
                     <button id="botao-analisar" type="button" onclick="analisarCarteira()">

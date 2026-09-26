@@ -4,7 +4,7 @@
 // Fluxo:
 //   1) A imagem da carteira vai DIRETO para o Gemini (ele le
 //      imagem nativamente: letra de mao, carimbos, tabelas)
-//   2) O Gemini usa o documento de referencia (documento-referencia.md)
+//   2) O Gemini usa o documento de referencia e os PDFs oficiais
 //      e responde o que falta / esta atrasado / efeitos / importancia
 //
 // Usamos fetch nativo (Node 18+), entao NAO ha SDK para instalar.
@@ -19,6 +19,16 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const GEMINI_MODELO = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 
 const CAMINHO_DOCUMENTO = path.join(__dirname, "documento-referencia.md");
+const DOCUMENTOS_PDF = [
+  {
+    caminho: path.join(__dirname, "referencias", "Calendario_de_Vacinacao_SITE.pdf"),
+    mime: "application/pdf",
+  },
+  {
+    caminho: path.join(__dirname, "referencias", "29144651-vacinas-campanha-multi-2021.pdf"),
+    mime: "application/pdf",
+  },
+];
 
 // ---- Limite de tamanho da imagem (o frontend tambem corta) ----
 const TAMANHO_MAXIMO_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -36,6 +46,28 @@ function lerDocumentoReferencia() {
   }
 }
 
+// Os PDFs sao enviados diretamente ao Gemini, que consegue ler documentos
+// PDF e preserva as tabelas e a diagramacao do calendario oficial.
+function lerDocumentosPdf() {
+  return DOCUMENTOS_PDF.flatMap(({ caminho, mime }) => {
+    try {
+      if (!fs.existsSync(caminho)) {
+        console.warn(`[ia] PDF de referencia nao encontrado: ${path.basename(caminho)}`);
+        return [];
+      }
+      return [{
+        inline_data: {
+          mime_type: mime,
+          data: fs.readFileSync(caminho).toString("base64"),
+        },
+      }];
+    } catch (e) {
+      console.error(`[ia] falha ao ler PDF ${path.basename(caminho)}:`, e.message);
+      return [];
+    }
+  });
+}
+
 // ============================================================
 // 2) ANALISE COM O GEMINI (le a imagem + o documento)
 // ------------------------------------------------------------
@@ -49,6 +81,7 @@ async function analisarComGemini(bufferImagem, mime, pergunta) {
   }
 
   const documento = lerDocumentoReferencia();
+  const documentosPdf = lerDocumentosPdf();
 
   // Instrucoes (regras) para a IA seguir
   const instrucoes = `Você é um assistente que ajuda pessoas a entenderem a carteira de
@@ -100,6 +133,7 @@ ${pergunta || "(nenhuma pergunta específica — faça a análise completa)"}`;
           role: "user",
           parts: [
             { text: instrucoes },
+            ...documentosPdf,
             {
               inline_data: {
                 mime_type: mime || "image/jpeg",
@@ -177,4 +211,5 @@ module.exports = {
   analisarComGemini,
   perguntarSobreCarteira,
   lerDocumentoReferencia,
+  lerDocumentosPdf,
 };

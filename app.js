@@ -627,3 +627,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (limparPerguntasBtn) limparPerguntasBtn.addEventListener("click", limparPerguntas);
   if (document.getElementById("Imagem")) carregarCarteiraSalva();
 });
+
